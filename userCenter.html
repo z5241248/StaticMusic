@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta charset="UTF-8">
+    <title>个人中心</title>
+	<link rel="shortcut icon" href="image/yinghua.png" type="image/x-icon" />
+    <script type="text/javascript" src="js/jquery/jquery-1.12.4.js" ></script>
+    <script type="text/javascript" src="js/utils.js" ></script>
+</head>
+<style>
+	input[type='button'],input[type='reset']{background: white;cursor: pointer}
+    #top{width: 100%;height: 105px;border-bottom: 1.5px solid whitesmoke;line-height: 100px;text-align: center;}
+    #top img{width: 250px;margin-left: 5%;float: left;margin-top: 5px;}
+    #login{width: 15%;display: inline;float: right;position: relative;right: 5%;font-size: 19px;color: #ffc7f1;font-weight: 700;}
+    #login label:nth-of-type(1),label:nth-of-type(3){cursor: pointer;}
+    #usercenter {width: 85%;height: 200px;position: relative;top: 20px;left: 120px;}
+    #revisemain {display: none;}
+
+    #revisemain ul li {display: inline-block;margin: 25px;}
+    #revisemain .box { position:relative; width:200px; height:50px; border:2px solid rgba(255,199,241,0.65); border-radius:30px; }
+    #revisemain .box:after { content:''; position:absolute; bottom:-25px; left:30px; width:0; height:0;
+                               border-top:25px solid rgba(255,199,241,0.65);border-right:50px solid transparent; }
+    #revisemain .box label {font-size: 18px;position: relative;top: 12px;left: 55px;}
+    #revisemain .box:hover {cursor: pointer;background-color: rgba(255,199,241,0.65);}
+    #revisemain .box:hover label{cursor: pointer;}
+
+    #revisetitle {text-indent: 10px;font-family: "微软雅黑";height: 35px;line-height:35px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;}
+    #onerevise p{font-weight: 800;font-size: 20px}
+    #onerevise input{outline: none;padding-left: 5px}
+    #onerevise .usernamerevise {display: none;}
+    #onerevise .passwordrevise {display: none;}
+    #onerevise .photorevise {display: none;}
+    #photo {width: 16%;text-align: center;position: relative;top: 10px;}
+    #users {width: 84%;}
+    #users ul {position: relative;left: -3%;}
+    #users ul li {padding-right: 40px;padding-left: 20px;display: inline-block;color: #666666;}
+    #users ul li p:nth-of-type(1) {text-align: center;}
+    ul li{list-style-type: none;}
+    #hr {border-top: 1px solid rosybrown;}
+    #userboder {border-left: 1px #E0E0E0 solid;border-right: 1px #E0E0E0 solid;}
+	#userboder p{margin-left: 20px}
+    #username {font-size: 20px;border-bottom: 1px solid #E0E0E0;height: 50px;}
+
+
+    a {text-decoration: none;color: black;}
+    #main {border-right: 1px dashed #E0E0E0;position: fixed;}
+    #main ul {padding: 15px;margin-top: 25px;margin-left: 15px;}
+    #main ul li {text-indent: 10px;font-size: 15px;text-align: left;height: 50px;line-height: 50px;border-bottom: 1px solid #EEEEEE;}
+	#main ul li:nth-of-type(1) {background-color: rgba(255,199,241,0.65);color: white;}
+	#main ul li:nth-of-type(1) a {color: white;}
+	#main ul li:hover{cursor: pointer;}
+
+	#info {opacity: 0;position: absolute;top: 16px;width: 160px; height: 160px;}
+	#hiddenphoto {position: relative;width: 100px;height: 100px;top: 20%}
+	#info:hover{opacity: 0.25;background-color: #F5F5F5;}
+	#hiddenphoto:hover{cursor: pointer;}
+
+	#lovemusic{ width: 100%;height: 550px;position: relative;left: 5px;}
+	#lovemusic ul li{border: 0.1px solid rgba(255,199,241,0.7);display: inline-block;padding: 15px;margin:0px 42px 15px -12px ;}
+	#lovemusictitle {text-indent: 10px;font-family: "微软雅黑";height: 35px;line-height:35px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;}
+
+	#lovealbum{ width: 100%;height: 550px;position: relative;left: 5px;}
+	#lovealbum ul li{border: 0.1px solid rgba(255,199,241,0.7);display: inline-block;padding: 15px;margin:0px 42px 15px -12px ;}
+	#lovealbumtitle {text-indent: 10px;font-family: "微软雅黑";height: 35px;line-height:35px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;}
+
+	#formpassword table{margin: 0 auto}
+	#formpassword table tr td input{width: 50%;height: 23px;border-radius: 5px 5px 5px 5px;border: 1.2px #2C85DD solid;box-shadow: 1px 1px 1px 1px #D5D6D6;}
+	#formpassword table tr td {padding: 10px;}
+
+	#formusername{text-align: center;margin-top: 40px}
+	#formusername input{width: 20%;height: 23px;border-radius: 5px 5px 5px 5px;border: 1.2px #2C85DD solid;box-shadow: 1px 1px 1px 1px #D5D6D6;}
+
+	.submit:hover{cursor: pointer;}
+	#reset:hover{cursor: pointer;}
+	
+	.font {text-align: center;font-family:"微软雅黑";font-size: 15px;}
+	.reviseusername:hover{cursor: pointer;}
+
+	.submitpwd:hover{cursor: pointer;}
+	.submitname:hover{cursor: pointer;}
+	.reset:hover{cursor: pointer;}
+	.reviseusername:hover{cursor: pointer;}
+
+	.div_model {position: relative;left: 60%;top: -60%;border-right: 1px solid #E1E1E2;border-left: 1px solid #E1E1E2;width: 40%;}
+	#cropedBigImg0{width: 100px;height: 100px;display: none;border-radius: 5em;position: relative;left: 33%;}
+
+	#cropedYuLanTu {display: none;}
+
+	#formheadphoto{margin-top: 10px}
+	#formheadphoto table tr:nth-of-type(2) td:nth-of-type(2) {text-align: left;}
+	#formheadphoto table tr td {height: 55px;width: 150px;}
+	.submitphoto{width: 40%;height: 30px;border-radius: 5px 5px 5px 5px;border: 1.2px #2C85DD solid;box-shadow: 1px 1px 1px 1px #D5D6D6;
+				margin-top: 40px;cursor: pointer}
+
+	.submitphoto:hover{cursor: pointer;}
+
+	#upFile{width: 39%;height: 30px;border-radius: 5px 5px 5px 5px;border: 1.2px #2C85DD solid;box-shadow: 1px 1px 1px 1px #D5D6D6;cursor: pointer}
+	#lab{width: 40%;height: 30px;position: relative;left: 21%;top: 37px;font-size: 13px;font-weight: 500}
+	#chooseImage0{width: 55px;height: 30px;cursor: pointer;opacity: 0;cursor: pointer}
+
+</style>
+<body>
+  <a name="a"></a>
+    <div id="top">
+        <a href="index.html" onclick="refresh()"><img src="image/sign.png"></a>
+        <div id="headImg">
+            <img style="width: 30px;height: 30px;border-radius: 2em;" />
+        </div>
+        <div id="login">
+            <label onclick="takeOff()">注销</label>
+        </div>
+    </div>
+    <div id="usercenter">
+    	<table border="0" cellpadding="0" cellspacing="0" width="100%" height="600px">
+    		<tr>
+    			<td width="13%" valign="top" id="main">
+    				<ul>
+                        <li onclick="window.location.href='#a'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;会员中心</a></li>
+                        <li onclick="window.location.href='#b'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;我的歌单</a></li>
+                        <li onclick="window.location.href='#c'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;收藏的专辑</a></li>
+                        <li id="revise"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;信息修改</a></li>
+    				</ul>
+    			</td>
+    			<td width="82%" valign="top">
+    				<div id="usermain">
+    					<table border="0" cellpadding="0" cellspacing="0" width="100%" >
+				    		<tr>
+				    			<td id="photo">
+                                    <!--头像-->
+				    				<img src="" id="headphoto" style="width: 160px; height: 160px;border-radius: 5em" />
+				    				<div id="info">
+				    					<img src="image/changeHeadImage.png" id="hiddenphoto" />
+				    				</div>
+				    			</td>
+				    			<td id="users">
+                                    <!--用户名-->
+                                    <p id="username">&nbsp;&nbsp;<label id="name"></label>&nbsp;&nbsp;<img src="image/pencil.png" style="width: 13px;" class="reviseusername" /></p>
+				    				<ul>
+				    					<li><p id="musicCount"></p><p>音乐</p></li>
+				    					<li id="userboder"><p>0</p><p>专辑</p></li>
+<!--				    					<li><p>0</p><p>评论</p></li>-->
+				    				</ul>
+				    			</td>
+				    		</tr>
+				    		<tr>
+				    			<td colspan="2">
+				    				<hr>
+				    				<p id="lovemusictitle">&nbsp;&nbsp;<a name="b">我喜欢的歌曲</a></p>
+				    				<div id="lovemusic">
+				    					<ul class="addmusic">
+				    						<li>
+				    						</li>
+				    					</ul>
+				    				</div>
+
+				    				<p id="lovealbumtitle">&nbsp;&nbsp;<a name="c">收藏的专辑</a></p>
+				    				<div id="lovealbum">
+				    					<ul class="addalbum">
+				    						<li>
+				    						</li>
+				    					</ul>
+				    				</div>
+				    			</td>
+				    		</tr>
+    					</table>
+    				</div>
+					<div id="revisemain">
+						<p id="revisetitle">&nbsp;&nbsp;修改页面</p>
+						<ul>
+							<li><div class="box"><label>用户名修改</label></div></li>
+							<li><div class="box"><label>密码修改</label></div></li>
+							<li><div class="box"><label>头像修改</label></div></li>
+						</ul>
+					</div>
+
+					<div id="onerevise">
+						<ul>
+							<li class="usernamerevise">
+								<div style="width: 800px;height: 100px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;">
+									<form id="formusername" method="post">
+										请输入新用户名:&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="username" />
+										&nbsp;&nbsp;<input type="button" class="submitname" value="修改" style="width: 5%;" />&nbsp;&nbsp;<input type="reset" id="reset" value="重置" style="width: 5%;" />
+									</form>
+								</div>
+							</li>
+							<li class="passwordrevise">
+								<div style="width: 800px;height: 250px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;">
+									<form id="formpassword" method="post">
+										<table border="0" cellpadding="0" cellspacing="0" width="50%">
+											<tr><td>请输入原密码:</td><td><input type="text" class="oldpassword"/></td></tr>
+											<tr><td>请输入新密码:</td><td><input type="text" class="newpassword1"/></td></tr></p>
+											<tr><td>再输一遍:</td><td><input type="text" class="newpassword2" name="username" /></td></tr></p>
+											<tr><td style="text-align: right;"><input type="button" class="submitpwd" value="修改" /></td><td><input type="reset" id="resettype" value="重置" style="width: 30%;" /></td></tr></p>
+										</table>
+									</form>
+								</div>
+							</li>
+							<li class="photorevise">
+								<div style="width: 800px;height: 180px;border-bottom: 1px solid #E1E1E2;border-top: 1px solid #E1E1E2;">
+									<form id="formheadphoto"  method="post" enctype="multipart/form-data">
+										<table border="0" cellpadding="0" cellspacing="0">
+											<tr>
+												<td>请选择上传图片:</td>
+												<label id="lab">预览</label>
+												<td><div id="upFile"><input type="file" name="file" accept="image/gif,image/jpeg, image/png, image/jpg" id="chooseImage0"></div></td>
+											</tr>
+											<tr>
+												<td></td>
+												<td><input type="button" class="submitphoto" value="上传" /></td>
+											</tr>
+										</table>
+									</form>
+									<div class="div_model">
+										<p id="cropedYuLanTu">&nbsp;&nbsp;预览图&nbsp;:</p>
+										<img id="cropedBigImg0" src="" />
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+    			</td>
+    		</tr>
+    	</table>
+    </div>
+    <input type="hidden" class="id" />
+    <input type="hidden" class="name" />
+    <input type="hidden" class="headPath" />
+</body>
+</html>
+
+<script>
+    $(function()
+    {
+    	lookuser();
+
+		$("#hiddenphoto").click(function(){
+			$("#usermain").css("display","none");
+			$("#revisemain").css("display","block")
+			$("#onerevise").css("display","block")
+			$(".photorevise").css("display","block");
+			$(".photorevise").siblings("li").css("display","none")
+			$("#revise").css("background-color","#FFDBF6")
+			$("#revise").siblings("li").css("background-color","white");
+			$("#revise").siblings("li").children("a").css("color","black");
+			$("#revisemain ul li").children(".box").css("background-color","white");
+			$("#revisemain ul li").eq(2).children(".box").css("background-color","#FFDBF6");
+		});
+
+		$(".reviseusername").click(function(){
+			$("#usermain").css("display","none");
+			$("#revisemain").css("display","block")
+			$("#onerevise").css("display","block")
+			$(".usernamerevise").css("display","block");
+			$(".usernamerevise").siblings("li").css("display","none")
+			$("#revise").css("background-color","#FFDBF6")
+			$("#revise").siblings("li").css("background-color","white");
+			$("#revise").siblings("li").children("a").css("color","black");
+			$("#revisemain ul li").children(".box").css("background-color","white");
+			$("#revisemain ul li").eq(0).children(".box").css("background-color","#FFDBF6");
+		});
+
+
+		$(".submitphoto").click(function(){
+			var form = $("#formheadphoto").serialize();
+			var url=basePath + "SakuraMusic/uploadfile";
+			
+			var musicID = $(".id").val();
+			
+			var formData = new FormData($("#formheadphoto")[0]);
+
+			$.ajax({
+			    	type:"POST",
+			    	url:"/SakuraMusic/uploadfile?id="+musicID,
+			    	data:formData,
+			    	dataType:"json",
+			    	async:false,
+			    	cache:false,
+			    	contentType:false,
+			    	processData:false,
+			    	success:function(data){
+			    		 //alert(data);	
+			    		 if(data==true){
+			    		 	lookuser()
+			    		 	alert("修改成功-----")
+			    		 }else{
+			    		 	alert("修改失败-----")
+			    		 }
+			    	}
+			  });
+			  
+			
+		});
+
+        $("#main ul li").click(function()
+        {
+            $(this).css("background-color","rgba(255,199,241,0.65)");
+            $(this).children("a").css("color","white");
+            $(this).siblings("li").css("background-color","white");
+            $(this).siblings("li").children("a").css("color","black");
+
+            var index = $(this).index();
+
+            if(index==3)
+            {
+                $("#usermain").css("display","none");
+                $("#revisemain").css("display","block")
+                $("#onerevise").css("display","block")
+            }else
+            {
+                $("#usermain").css("display","block");
+                $("#revisemain").css("display","none");
+                $("#onerevise").css("display","none")
+            }
+        });
+
+		$("#revisemain ul li").click(function()
+		{
+			var index = $(this).index();
+
+			if(index==0){
+				$(this).children(".box").css("background-color","#FFDBF6");
+				$(this).siblings("li").children(".box").css("background-color","white");
+				$(".usernamerevise").css("display","block");
+				$(".usernamerevise").siblings("li").css("display","none")
+			}
+			if(index==1){
+				$(this).children(".box").css("background-color","#FFDBF6");
+				$(this).siblings("li").children(".box").css("background-color","white");
+				$(".passwordrevise").css("display","block");
+				$(".passwordrevise").siblings("li").css("display","none")
+			}
+			if(index==2){
+				$(this).children(".box").css("background-color","#FFDBF6");
+				$(this).siblings("li").children(".box").css("background-color","white");
+				$(".photorevise").css("display","block");
+				$(".photorevise").siblings("li").css("display","none")
+			}
+		});
+
+
+		window.addEventListener("DOMContentLoaded", contentLoaded, false);
+    });
+    
+    function AlbumAndMusic(){
+    	var userInfo=getRequest();
+    	var name = userInfo.name;
+    	//alert(username)
+    	$.post("/SakuraMusic/SelectAllUser",{"name":name,"t":"1"},function(data){
+    		//alert(data.listmusic)
+    		//alert(data.listalbum)
+
+			$("#musicCount").text(data.musicCount)
+
+			var addmusic = $(".addmusic")
+				addmusic.empty()
+
+			var listmusic = data.listmusic
+			var listmusicsinger = data.listmusicsinger
+			for(var i = 0 ; i<listmusic.length ; i++){
+				addmusic.append(
+
+					"<li>" +
+						"<a href='index.html'>" +
+						"<img src='"+pagePath+listmusic[i].image+"' style='width: 150px; height: 145px;' /></a>" +
+						"<a href='index.html'><p class='font'>"+listmusic[i].name+"</p></a>" +
+						"<a href='index.html'><p class='font'>"+listmusicsinger[i].name+"</p></a>" +
+					"</li>"
+
+				)
+			}
+
+
+			var lovealbum = $(".addalbum")
+				lovealbum.empty()
+
+			var listalbum = data.listalbum
+			var listalbumsinger = data.listalbumsinger
+			for(var i = 0 ; i<listalbum.length ; i++){
+				lovealbum.append(
+
+					"<li>" +
+						"<a href='index.html'>" +
+						"<img src='"+pagePath+listalbum[i].image+"' style='width: 150px; height: 145px;' /></a>" +
+						"<a href='index.html'><p class='font'>"+listalbum[i].name+"</p></a>" +
+						"<a href='index.html'><p class='font'>"+listalbumsinger[i].name+"</p></a>" +
+					"</li>"
+
+				)
+			}
+
+    	},'json')
+    }
+    
+    function lookuser(){
+    	var userInfo=getRequest();
+        $(".id").val(userInfo.id);
+        var id = $(".id").val()
+        
+        
+        //alert(id)
+
+        $.post("/SakuraMusic/lookusers",{"id":id,"t":"1"},function(data){
+            //alert(data.username)
+            $(".name").val(data.name);
+            $("#name").text(data.username)
+            //alert(pagePath+data.image)
+            $(".headPath").val(pagePath+data.image)
+            //alert(1)
+            var headPath=$(".headPath").val()
+            //alert(headPath+"1fffff")
+            $("#headphoto").attr("src",headPath);   
+            
+            var name = $(".name").val();
+       
+        },'json')
+
+        $.post("/SakuraMusic/SelectAllUser",{"id":id,"t":"1"},function(data){
+            //alert(data.listmusic)
+            //alert(data.listalbum)
+            //alert(data.musicCount)
+            $("#musicCount").text(data.musicCount)
+                
+            var addmusic = $(".addmusic")   
+                addmusic.empty()
+            
+            var listmusic = data.listmusic
+            var listmusicsinger = data.listmusicsinger
+            for(var i = 0 ; i<listmusic.length ; i++){
+                addmusic.append(
+
+                    "<li>" +
+						"<a >" +
+						"<img src='"+pagePath+listmusic[i].image+"' style='width: 150px; height: 145px;' /></a>" +
+						"<a ><p class='font'>"+listmusic[i].name+"</p></a>" +
+						"<a ><p class='font'>"+listmusicsinger[i].name+"</p></a>" +
+					"</li>"
+
+                )
+            }
+
+
+            var lovealbum = $(".addalbum")
+                lovealbum.empty()
+
+            var listalbum = data.listalbum
+            var listalbumsinger = data.listalbumsinger
+            for(var i = 0 ; i<listalbum.length ; i++){
+                lovealbum.append(
+                    "<li>" +
+						"<a >" +
+						"<img src='"+pagePath+listalbum[i].image+"' style='width: 150px; height: 145px;' /></a>" +
+						"<a ><p class='font'>"+listalbum[i].name+"</p></a>" +
+						"<a ><p class='font'>"+listalbumsinger[i].name+"</p></a>" +
+					"</li>"
+
+                )
+            }
+
+        },'json')
+
+    }
+
+
+    function ProcessFile(e)
+    {
+        var file = document.getElementById('chooseImage0').files[0];
+        console.log(file);
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var txt = event.target.result;
+                $("#cropedBigImg0").attr('src', txt);//将图片base64字符串赋值给img的src
+                //console.log(txt)//base64
+                $("#cropedBigImg0").css("display","block")
+            };
+        }
+        reader.readAsDataURL(file);
+    }
+
+
+
+    function contentLoaded()
+    {
+        document.getElementById('chooseImage0').addEventListener('change',
+            ProcessFile, false);
+    }
+</script>

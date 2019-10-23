@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>樱花音乐</title>
+    <script src="js/jquery/jquery-3.3.1.js" type="application/javascript"></script>
+    <script src="js/jquery/jquery.min.js" type="application/javascript"></script>
+    <script src="js/utils.js" type="application/javascript"></script>
+    <script src="js/tips.js"></script>
+    <link href="css/Framework.css" rel="stylesheet">
+    <script src="js/bootstrap.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/infoIframe.css" rel="stylesheet">
+    <link href="css/tips.css" rel="stylesheet" >
+</head>
+<body>
+    <div id="tables">
+        <img id="img" />
+        <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><strong></strong>
+        <table id="mytab" style="width: 100%;text-align: center"></table>
+        <div id="tabDiv1" style="height: 600px;width: 50%;float: left;border-right: 1px dashed darkgray;"></div>
+        <div id="tabDiv2" style="height: 600px;width: 50%;margin-left: 50%;border-left: 1px dashed darkgray;"></div>
+    </div>
+
+    <div class="sign-up-form" id="dialog">
+        <img src="image/icon.png">
+        <label onclick="hideDialog()">×</label>
+        <h1>用户登陆</h1>
+        <form id="myform" action="javascript:void(0)">
+            <input type="text" class="input-box" placeholder="请输入账户" name="name">
+            <input type="password" class="input-box" placeholder="请输入密码" name="password">
+            <button class="signup-btn" onclick="login()">登陆</button>
+        </form>
+        <a>注册用户</a>
+    </div>
+</body>
+<script>
+    $(function ()
+    {
+        getInter();
+        getInfo();
+
+        $("input[name='music']").keypress(function (e)
+        {
+            if(e.which==13)
+            {
+                $("#tables").css("display","none");
+                $("#nav").removeAttr("display");
+            }
+        });
+
+
+        $("#tabDiv2").on("mouseover","tr",function ()
+        {
+            $(this).find("img").eq(0).css("display","block");
+        });
+
+
+        $("#tabDiv2").on("mouseout","tr",function ()
+        {
+            $(".playbtn img").css("display","none");
+        });
+    });
+
+
+    function getInfo()
+    {
+        var temp=getRequest().type.trim();
+        if(temp=="singer")
+        {
+            singer(getRequest().name);
+        }
+        else if(temp=="type")
+        {
+            $("#mytab").css("display","none");
+            $("#tabDiv1").css("display","none");
+            $("#tabDiv2").css("display","none");
+            type(getRequest().name)
+        }
+    }
+
+
+
+
+    function singer(name)
+    {
+        var singerurl=basePath+"SakuraMusic/selectByName2/"+name;
+        var headpage;
+        $.ajax
+        ({
+            type:"POST",
+            url:singerurl,
+            async:false,
+            success:function (getSinger)
+            {
+                headpage=getSinger.image;
+            }
+        });
+
+
+        //名称
+        $("#tables strong").text(name);
+        //头像
+        $("#img").attr("src",headpage);
+
+        //列表
+        var url=basePath+"SakuraMusic/selectAlbumInfo/"+name;
+        $.post(url,function (data)
+        {
+            var table = $("#mytab");
+            table.empty();
+            table.append("<tr style='height: 50px;font-size: 22px;border-bottom: 1px solid gainsboro;font-weight: 800;background-color:rgba(255,199,241,0.2) '>" +
+                         "<td width='50%'>专&nbsp;&nbsp;辑</td><td style='color: darkgrey;border-right: 1px solid darkgrey;'></td>" +
+                         "<td width='50%'>歌&nbsp;&nbsp;曲</td></tr>");
+            $.each(data,function (i,n)
+            {
+                var table=$("<table style='width: 100%;text-align: center;'></table>");
+                var tr=$("<tr style='height: 50px;font-size: 17px;' onclick='albumMusic(this)'></tr>");
+                var td="<td width='50%' style='cursor: pointer;'>"+data[i]+"</td></td>";
+
+                tr.append(td);
+                table.append(tr);
+                $("#tabDiv1").append(table)
+            })
+        });
+    }
+
+
+
+    function type(name)
+    {
+        //名称
+        $("#tables strong").text(name);
+        //头像
+        var url=basePath+"SakuraMusic/selectImageByMusicType/"+name;
+        $.post(url,function (data)
+        {
+            var firstTable=$("#tables");
+            $(firstTable).find(table).empty();
+
+            var image=data.image;
+            $("#img").attr("src",image);
+
+            var table=$("<table style='width: 90%;text-align: center;margin: 0 auto;background-color:rgba(255,199,241,0.2);margin-top: 40px'></table>");
+            var tr=$("<tr style='width: 100%;font-weight: 800;height: 50px;border-bottom: 1px solid gainsboro;'></tr>");
+            var td="<td width='40%' style='font-size: 22px;border-right: 1px solid gainsboro'>歌曲</td>" +
+                "<td width='40%' style='font-size: 20px;border-right: 1px solid gainsboro'>歌手</td>" +
+                "<td width='15%' style='text-align: center;font-size: 20px'>播放</td>";
+
+            tr.append(td);
+            table.append(tr);
+            firstTable.append(table);
+
+
+            var searchUrl=basePath+"SakuraMusic/selectByMusicTypeId/"+data.id;
+            $.post(searchUrl,function (ds)
+            {
+                $.each(ds,function (i,n)
+                {
+                    var singerId=n.singer;
+                    var searchSingerIdUrl=basePath+"SakuraMusic/selectSingerById/"+singerId;
+                    var singerName;
+                    $.ajax
+                    ({
+                        type:"POST",
+                        url:searchSingerIdUrl,
+                        async:false,
+                        success:function (singerInfo)
+                        {
+                            singerName=singerInfo.name;
+                        }
+                    });
+                    var table2=$("<table style='width: 90%;margin: 0 auto'></table>");
+                    var tr=$("<tr style='text-align: center;height: 50px;font-size: 17px;'></tr>");
+                    var td="<td width='40%;' style='border-bottom:1px solid whitesmoke' onmouseover='mouseover(this)' onmouseout='mouseout(this)'>"+n.name+"</td>" +
+                        "<td width='40%;' style='border-bottom:1px solid whitesmoke' onmouseover='mouseover(this)' onmouseout='mouseout(this)'>"+singerName+"</td>" +
+                        "<td width='15%' style='border-bottom:1px solid whitesmoke' onmouseover='mouseover(this)' onmouseout='mouseout(this)'>" +
+                        "<img src='image/play.png' style='width: 30px;height: 30px;margin-top: 1%;cursor: pointer;' onclick='onPlay(this)'></td>";
+
+                    tr.append(td);
+                    table2.append(tr);
+                    firstTable.append(table2)
+                })
+            })
+        });
+    }
+
+
+    function mouseover(e)
+    {
+        var pa=$(e).parent().find("td");
+        $(pa).css("background-color","whitesmoke")
+    }
+
+
+    function mouseout(e)
+    {
+        var pa=$(e).parent().find("td");
+        $(pa).css("background-color","white")
+    }
+
+
+    //播放点击的音乐
+    function onPlay(e)
+    {
+        //得到选中得歌曲名称和歌手id
+        var music=$(e).parent().parent().find("td").eq(0).text();
+        var singer=$(e).parent().parent().find("td").eq(1).text();
+        var url=basePath+"SakuraMusic/selectByName2/"+singer;
+        $.post(url,function (data)
+        {
+            if(data!="" && data!=null)
+            {
+                play(music,data.id);
+            }
+        });
+    }
+
+
+    
+    function albumMusic(e)
+    {
+        var name=$(e).children("td").text();
+        var url=basePath+"SakuraMusic/selectMusicByAlbumName/"+name;
+        $.post(url,function (data)
+        {
+            $("#tabDiv2").empty();
+            $.each(data,function (i,n)
+            {
+                var table=$("<table style='width: 100%;text-align: center'></table>");
+                var tr=$("<tr style='height: 50px;font-size: 17px;'></tr>");
+                var td="<td width='100%' style='cursor: pointer;' onclick='radio(this)' class='play'>"+n.name+"</td>" +
+                    "<td class='playbtn' style='cursor: pointer'><img src='image/play.png' style='width: 20px;margin-top: 1%;display: none'></td></td>";
+
+                tr.append(td);
+                table.append(tr);
+                $("#tabDiv2").append(table);
+            });
+        });
+    }
+
+
+
+    function radio(e)
+    {
+        //歌曲名称
+        var musicName=$(e).text();
+
+        var name=$("#tables strong").text();
+        var url=basePath+"SakuraMusic/selectByName2/"+name;
+        $.post(url,function (da)
+        {
+            //歌手id
+            var id = da.id;
+            var searchUrl=basePath+"SakuraMusic/selectMusicByNameAndSinger?singer="+id+"&name="+musicName;
+            $.post(searchUrl,function (data)
+            {
+                var  musicaddress=data[0].musicaddress;
+                if(musicaddress!="" && musicaddress!=null)
+                {
+                    var frame=window.parent.document.getElementById("audioControl");
+                    frame.contentWindow.change(musicName,id);
+
+                    //信息提示
+                    $('.tips',parent.document).initTips
+                    ({
+                        title: "正在播放", // head头部显示的标题内容
+                        message:""+musicName+"",// 内容区域
+                        duration:3500, // 提示框停留时间(毫秒为单位)  默认值为5000ms
+                        space:10, // 通知窗之间上下间隔 单位px(默认值为8)
+                        firstSpace:8, // 第一个提示框距离页面 上方或(下,左,右)的距离 (默认值为8)
+                        margin:15, // 提示框 距离左右两边的距离 (默认值15px)
+                        toastType:'info',// 提示类型 有四个样式可选 info warning error success(默认info)
+                        width:150, // 提示框宽度,默认为auto不换行
+                        // limit:4, // 限制提示框数量(默认值为4)
+                        // timingFun:'linear',// 动画运动曲线(默认值为ease)
+                        // direction:'right bottom', // 提示框滑出方向默认right bottom
+                        // type:'click', // 触发方式(内容区域)
+                        // 上方type属性的事件触发后的回调函数
+                        // action: function () {
+                        //     console.log(1)
+                        // }
+                    });
+
+                    //窗口弹出
+                    // var show=window.parent.show();
+                }
+            })
+        })
+    }
+</script>
+</html>

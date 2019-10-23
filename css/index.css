@@ -1,0 +1,3 @@
+#centerIframe{width: 100%;height: 1100px}
+#aud{width: 800px;height: 460px;background-color: rgba(241,243,244,0.95);position: fixed;right: 0;top: 25%;text-align: right;}
+#aud div:nth-of-type(1){height:100%;width: 30px;float: left;cursor: pointer;line-height: 110px}

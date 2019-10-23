@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link type="text/css" href="css/managerUser.css" rel="stylesheet" />
+	</head>
+	
+	<style>
+		
+		a {text-decoration: none;color: black;}
+		a:hover{color: red;cursor: pointer;}
+	
+	</style>
+	
+	<script type="text/javascript" src="js/jquery/jquery-1.12.4.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+	<script>
+		$(function()
+		{
+			$(".smt").click(function(){
+				var form = $("#form").serialize()
+				$.post("/SakuraMusic/UserManager",form,function(data){
+						if(data.ck=="true"){
+							var tbody = $("table tbody")
+							var tr = $("<tr></tr>")
+							var td1 = $("<td>"+data.users.name+"</td>")
+							if(data.users.seal=="1"){
+								var td2 = $("<td>已封号</td>")
+								var td3 = $("<td><a href='javascript:sealed("+data.users.id+")'>解封</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:LookSealTime()'>查看解封日期</a></td>")
+								var times = data.time.substring(0,16)
+								$(".times").val(times)
+							}else{
+								var td2 = $("<td>未封号</td>")
+								var td3 = $("<td><a href='javascript:sealing("+data.users.id+")'>封停</a>")
+							}
+							tbody.empty()
+							tr.append(td1)
+							tr.append(td2)
+							tr.append(td3)
+							tbody.append(tr)
+						}else{
+							alert("请输入正确用户名!")
+						}
+				},'json')
+			})
+		});
+
+		function sealing(id){
+			$.post("/SakuraMusic/UserSealing",{"userid":id,"t":"1"},function(data){
+					if(data=="2"){
+						alert("该账号封停一个月")
+					}
+					window.location.reload()
+			},'json')
+			
+		}
+		
+		function sealed(id){
+			
+			$.post("/SakuraMusic/UserSealed",{"userid":id,"t":"1"},function(data){
+				
+					if(data=="2"){
+						alert("该账号已解封")
+					}
+					window.location.reload()
+					
+			},'json')
+			
+		}
+		
+		function LookSealTime(){
+				
+			var times = $(".times").val()
+			alert("解封日期="+times)
+										
+		}
+		
+		
+		
+	</script>
+	
+	<body>
+		<div id="main">
+			<form id="form" method="post">
+				用户名&nbsp;&nbsp;:&nbsp;&nbsp;<input type="text" name="username" />
+				<input type="button" class="smt" value="搜索" />
+			</form>
+			<p></p>
+			<table border="1" cellpadding="0" cellspacing="0" width="100%" align="center">
+				<thead>
+					<tr>
+						<td>用户名</td><td>账号状态</td><td>管理操作</td>
+					</tr>
+				</thead>
+				<tbody>
+					
+				</tbody>
+			</table>
+		</div>
+	<input type="hidden" type="hidden" class="times" />
+
+	</body>
+</html>

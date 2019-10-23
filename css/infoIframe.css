@@ -1,0 +1,7 @@
+#tables{width: 80%;height: 1000px;margin: 0 auto;margin-top: 10px;background-color: rgba(0,0,0,0.005);border-radius: 10%}
+#tables strong{font-size: 33px}
+#img{margin-top: 20px;width: 150px;height :150px;border-radius: 50%}
+#mytab{margin-top: 20px}
+#tabDiv1 table tr{border-bottom: 1px solid whitesmoke;}
+#tabDiv1 table tr:hover{background-color:  rgba(0,0,0,0.025)}
+#tabDiv2 table tr:hover{background-color:  rgba(0,0,0,0.025)}

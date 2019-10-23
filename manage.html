@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理中心</title>
+    <link href="css/manager.css" rel="stylesheet" />
+    <script type="text/javascript" src="js/jquery/jquery-1.12.4.js"></script>
+</head>
+<body>
+	<div id="top">
+        <a href="index.html" onclick="refresh()"><img src="image/sign.png"></a>
+        <div id="login">
+            <label onclick="takeOff()">注销</label>
+        </div>
+    </div>
+    <div id="usercenter">
+    	<table border="0" cellpadding="0" cellspacing="0" width="100%" height="600px">
+    		<tr>
+    			<td width="12%" valign="top" id="main">
+    				<ul>
+                        <li onclick="window.location.href='#a'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;歌曲管理</a></li>
+                        <li onclick="window.location.href='#b'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;专辑管理</a></li>
+                        <li onclick="window.location.href='#c'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;歌手管理</a></li>
+                        <li onclick="window.location.href='#c'"><a><img src="image/pencil.png" align="absmiddle"/>&nbsp;&nbsp;用户管理</a></li>
+    				</ul>
+    			</td>
+    			<td width="85%" valign="top">
+    				<div id="Managermain">
+    					<p id="title">歌&nbsp;曲&nbsp;管&nbsp;理</p>
+    				</div>		
+    				<hr>  
+    				<iframe id="iframe" src="managerMusic.html" width="100%" height="500px" frameborder="0"></iframe>
+    			</td>
+    		</tr>
+    	</table>
+    </div>
+</body>
+
+<script>
+	$(function(){
+
+		$("#usercenter table #main ul li").click(function(){
+			var index = $(this).index()
+			
+			if(index=="0"){
+				$("#iframe").attr("src","managerMusic.html")
+				$("#title").text("歌  曲  管  理")
+			}else if(index=="1"){
+				$("#iframe").attr("src","managerAlbum.html")
+				$("#title").text("专  辑  管  理")
+			}else if(index=="2"){
+				$("#iframe").attr("src","managerSinger.html")
+				$("#title").text("歌  手  管  理")
+			}else if(index=="3"){
+				$("#iframe").attr("src","managerUser.html")
+				$("#title").text("用  户  管  理")
+			}
+		})
+		
+		$("#main ul li").click(function(){
+			
+            $(this).css("background-color","rgba(255,199,241,0.65)");
+            $(this).children("a").css("color","white");
+            $(this).siblings("li").css("background-color","white");
+            $(this).siblings("li").children("a").css("color","black");
+
+        });
+		
+	})
+</script>
+
+</html>

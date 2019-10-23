@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery/jquery-3.3.1.js" type="application/javascript"></script>
+    <script src="js/bootstrap.min.js" type="application/javascript"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/indexIframe.css" rel="stylesheet">
+    <link href="css/Framework.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- 指示器 -->
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="3"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="4"></li>
+        </ol>
+
+        <!-- 轮播图片 -->
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                <img src="image/firstPages/1.jpg" alt="">
+            </div>
+            <div class="item">
+                <img src="image/firstPages/2.jpg" alt="">
+            </div>
+            <div class="item">
+                <img src="image/firstPages/3.jpg" alt="">
+            </div>
+            <div class="item">
+                <img src="image/firstPages/4.jpg" alt="">
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div id="listen">
+            <img src="image/listen.jpg">
+            <label>听见不同</label>
+        </div>
+        <table>
+            <tr>
+                <td width="20%">
+                    <img src="image/radio/1.jpg">
+                    <label>酷狗音乐电台</label>
+                </td>
+                <td width="20%">
+                    <img src="image/radio/2.jpg">
+                    <label>九酷音乐电台</label>
+                </td>
+                <td width="20%">
+                    <img src="image/radio/3.jpg">
+                    <label>入睡歌曲电台</label>
+                </td>
+            </tr>
+            <tr>
+                <td width="20%">
+                    <img src="image/radio/4.jpg">
+                    <label>有声小说电台</label>
+                </td>
+                <td width="20%">
+                    <img src="image/radio/5.jpg">
+                    <label>城市音乐电台</label>
+                </td>
+                <td width="20%">
+                    <img src="image/radio/6.jpg">
+                    <label>广播音乐电台</label>
+                </td>
+            </tr>
+        </table>
+    </section>
+</body>
+<script>
+    $(function ()
+    {
+        $('.carousel').carousel({
+            interval: 4500
+        });
+    })
+</script>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link type="text/css" href="css/managerMusic.css" rel="stylesheet" />
+		<link type="text/css" href="css/managerDialog.css" rel="stylesheet" />
+		<script type="text/javascript" src="js/jquery/jquery-1.12.4.js"></script>
+		<script type="text/javascript" src="js/utils.js"></script>
+		<style>
+			a {text-decoration: none;color: black;}
+			a:hover{color: red;cursor: pointer;}
+		</style>
+		
+	</head>
+	
+
+	<script>
+		$(function(){
+			
+			init(1)
+			
+			$(".smt").click(function()
+			{
+				init($(".nowpage").val())
+			});
+			
+			$("#main label").click(function()
+			{
+				var index = $(this).index()
+				var nowpage
+				if(index=="0"){
+					nowpage = 1		
+				}
+				if(index=="1"){
+					nowpage = $(".nowpage").val()*1-1				
+				}
+				if(index=="3"){
+					nowpage = $(".nowpage").val()*1+1			
+				}
+				if(index=="4"){
+					nowpage = $(".maxpage").val()							
+				}
+				init(nowpage)
+			});
+			
+			$(".xiugai").click(function()
+			{
+				var form = $("#formtext").serialize()
+				$.post("/SakuraMusic/MusicRevise",form,function(data){
+					if(data=="1"){
+						alert("修改成功")
+						window.location.reload()
+					}else{
+						alert("信息有误!")
+						window.location.reload()
+					}
+				},'json')
+			});
+			
+			$(".submitphoto").click(function()
+			{
+				var musicID = $(".musicid").val();
+				var formData = new FormData($("#formheadphoto")[0]);
+				$.ajax({
+						type:"POST",
+						url:"/SakuraMusic/MusicRevisePhoto?id="+musicID,
+						data:formData,
+						dataType:"json",
+						async:false,
+						cache:false,
+						contentType:false,
+						processData:false,
+						success:function(data)
+						{
+							 //alert(data);
+							 if(data==true){
+								window.location.reload()
+								alert("修改成功-----")
+							 }else{
+								alert("修改失败-----")
+							 }
+						}
+				  });
+			})
+		});
+		
+		function init(nowpage)
+		{
+			$(".nowpage").val(nowpage)
+			
+			var form = $("#form").serialize()
+		
+			$.post("/SakuraMusic/MusicManager",form,function(data){
+				//alert("总页数="+data.maxpage)
+				//alert("歌曲总数="+data.MusicCount)
+				//alert("当前页数="+data.nowpage)
+				
+				var tbody = $("tbody")
+					tbody.empty()
+					
+				$(".nowpage").val(data.nowpage)
+				$(".maxpage").val(data.maxpage)
+				
+				$.each(data.musiclist,function(i,n) {
+
+					var tr = $("<tr></tr>")
+					var td1 = $("<td>"+n.name+"</td>")
+					var td2 = $("<td>"+n.singerss.name+"</td>")
+					var td3 = $("<td>"+n.albumss.name+"</td>")
+					var td4 = $("<td><a href='javascript:musicrevise("+n.id+")'>修改</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href='javascript:musicdelete("+n.id+")'>删除</a></td>")
+					tr.append(td1)
+					tr.append(td2)
+					tr.append(td3)
+					tr.append(td4)
+					tbody.append(tr)
+				});
+				
+				var maxpage = data.maxpage
+				var nowpage = data.nowpage
+				
+				$(".addpage").empty()
+				
+				for(var i = nowpage-2 ; i<= nowpage+2 ; i++){
+					if(i>=1 && i<=maxpage){
+						$(".addpage").append("<label>"+i+"</label>")
+					}
+				}
+				
+				var page = $(".addpage label")
+				for(var i = 0 ; i<=page.length ; i++){
+					var ThePage = page.eq(i).text()
+					if(ThePage==nowpage){
+						page.eq(i).css("border-bottom","1px solid black")
+					}
+				}
+				
+			},'json')
+		}
+		
+		function musicdelete(id)
+		{
+			$.post("/SakuraMusic/MusicDelete",{"id":id,"t":"1"},function(data){
+				if(data=="1"){
+					alert("删除成功")
+					window.location.reload()
+				}else{
+					alert("操作失败")
+				}
+			},'json')
+		}
+		
+		function musicrevise(id)
+		{
+			var display = $("#MusicRevise").css("display")
+					
+			if(display=="block"){
+				$("#MusicRevise").fadeOut(1200)
+			}else{
+				$("#MusicRevise").fadeIn(1200)
+			}
+			$.post("/SakuraMusic/OneMusicManager",{"id":id,"t":"1"},function(data){
+				$(".musicname").val(data.name)
+				$("#cropedBigImg0").attr("src",pagePath+data.image)
+				$(".musicid").val(data.id)
+			},'json')
+		}
+	</script>
+	
+	<body>
+		<div id="main">
+		
+		<div id="Page">
+			<label>首页</label><label>上页</label>
+			<label class="addpage"></label>
+			<label>下页</label><label>最后页</label>
+		</div>
+			<!--搜索框-->
+			<form id="form" method="post" action="javascript:void(0)">
+				<label>歌曲名&nbsp;&nbsp;:&nbsp;&nbsp;</label><input type="text" name="name" />
+				<input type="submit" class="smt" value="搜索" />
+				
+				<input type="hidden" name="nowpage" class="nowpage" value="1" />
+				<input type="hidden" name="max" value="6" />
+			</form>
+
+			<p></p>
+				
+			<table border="0" cellpadding="0" cellspacing="0" width="100%" align="center">
+				<thead>
+					<tr>
+						<td>歌曲</td><td>歌手</td><td>所属专辑</td><td>管理操作</td>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+
+		
+		
+		<div id="MusicRevise">
+			<form id="formtext">
+				<label>修&nbsp;&nbsp;改&nbsp;&nbsp;页</label>
+					<p>歌名:<br>
+					<input type="text" class="musicname" name="name" /></p>
+
+					<p>歌手:<br>
+					<input type="text" value="功能研发中~~" disabled="disabled" /></p>
+
+					<p>类别:&nbsp;
+					<select name="type">
+						<option value="1">&nbsp;流&nbsp;&nbsp;行</option>
+						<option value="2">&nbsp;摇&nbsp;&nbsp;滚</option>
+						<option value="3">&nbsp;爵&nbsp;&nbsp;士</option>
+						<option value="4">&nbsp;轻&nbsp;音&nbsp;乐</option>
+						<option value="5">&nbsp;古&nbsp;&nbsp;风</option>
+					</select></p>
+
+					<input type="hidden" class="musicid" name="id" />
+					<p><input type="button" value="修改" class="xiugai" /></p>
+					<div class="jumpUpPhoto">头像修改--></div>
+			</form>
+				
+			<form id="formupphoto">
+				<label>头&nbsp;像&nbsp;修&nbsp;该&nbsp;页</label>
+				<div class="div_model">
+					<p id="cropedYuLanTu">&nbsp;&nbsp;预览图&nbsp;:<span class="jumpRevise">信息修改--></span></p>
+					<img id="cropedBigImg0" src="image/timg.jpg" width="140px" height="160px" style="border: 1px solid whitesmoke;border-radius: 10%;margin-left: 8%;" />
+				</div>
+				<form id="formheadphoto" method="post" enctype="multipart/form-data">
+						<label id="lab">选择图片</label>
+						<label id="upfile"><input type="file" name="file" class="file" accept="image/gif,image/jpeg, image/png, image/jpg" id="chooseImage0"></label>
+						<input type="hidden" class="musicid" name="id" />
+						<div id="sbm"><input type="button" class="submitphoto" value="上传" /></div>
+					</label>
+				</form>
+			</form>
+		</div>
+	</body>
+	
+	<script>
+			$(function(){
+				$(".tanchuang").click(function(){
+					var display = $("#MusicRevise").css("display")
+					
+					if(display=="block"){
+						$("#MusicRevise").fadeOut(1200)
+					}else{
+						$("#MusicRevise").fadeIn(1200)
+					}
+				})
+				
+				$(".jumpRevise").click(function(){				
+					$("#formupphoto").hide()
+					$("#formtext").fadeIn(1200)
+				})
+				
+				$(".jumpUpPhoto").click(function(){				
+					$("#formtext").hide()
+					$("#formupphoto").fadeIn(1200)
+				})
+			})
+			
+			window.addEventListener("DOMContentLoaded", contentLoaded, false);
+			
+			function ProcessFile(e)
+		    {
+		    	
+		        var file = document.getElementById('chooseImage0').files[0];
+		        
+		        console.log(file);
+		        if (file) {
+		            var reader = new FileReader();
+		            reader.onload = function (event) {
+		                var txt = event.target.result;
+		                //alert(txt)
+		                $("#cropedBigImg0").attr('src', txt);//将图片base64字符串赋值给img的src
+		                //console.log(txt)//base64
+		                $("#cropedBigImg0").css("display","block")
+		            };
+		        }
+		        reader.readAsDataURL(file);
+		    }
+		
+		
+		
+		    function contentLoaded()
+		    {
+		        document.getElementById('chooseImage0').addEventListener('change',
+		            ProcessFile, false);
+		    }
+			
+		</script>
+	
+</html>

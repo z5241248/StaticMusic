@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>樱花音乐</title>
+    <script src="js/jquery/jquery-3.3.1.js" type="application/javascript"></script>
+    <script src="js/jquery/jquery.min.js" type="application/javascript"></script>
+    <script src="js/yinghua.js" type="application/javascript"></script>
+    <script src="js/utils.js" type="application/javascript"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/syalert.min.js"></script>
+    <script src="js/tips.js"></script>
+    <script src="js/indexMessage.js"></script>
+
+    <link rel="shortcut icon" href="image/yinghua.png" type="image/x-icon" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/Framework.css" rel="stylesheet">
+    <link href="css/index.css" rel="stylesheet">
+    <link href="css/syalert.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/tips.css">
+    <link rel="stylesheet" href="css/indexMessage.css">
+</head>
+<body>
+    <div class="cherry">
+        <img id="yinghua" src="image/yinghua.png" alt="" >
+    </div>
+    <div id="top">
+        <a href="javascript:void(0);" onclick="refresh()"><img src="image/sign.png"></a>
+        <div id="search">
+            <input type="text" name="music" placeholder="搜索歌名或者歌手">
+        </div>
+        <div id="headImg">
+            <img style="width: 30px;height: 30px;border-radius: 2em;" />
+        </div>
+        <div id="login">
+            <label onclick="showLogin()">登&nbsp;陆</label>
+            <label>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</label>
+            <label onclick="showRegister()">注&nbsp;册</label>
+        </div>
+        <div id="center">
+            <label>&nbsp;&nbsp;&nbsp;&nbsp;<label id="tempLabel"></label></label>
+            <label>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</label>
+            <label onclick="syalert.syopen('takeoff')">&nbsp;退出</label>
+        </div>
+    </div>
+
+    <div id="section">
+        <!--歌手,榜单,排行榜,分类,推荐-->
+        <table id="musicTable">
+            <tr>
+                <td width="18%" class="dropdown">
+                    <label style="cursor: pointer"><a href="javascript:void(0);" onclick="refresh()" id="first">首页</a></label>
+                </td>
+                <td width="18%" class="dropdown">
+                    <label>歌手</label><span class="caret"></span>
+                    <div class="dropdown-content" id="tab1"></div>
+                </td>
+                <td width="18%" class="dropdown">
+                    <label>歌曲榜</label><span class="caret"></span>
+                    <div class="dropdown-content" id="tab2"></div>
+                </td>
+                <td width="18%" class="dropdown">
+                    <label>歌曲分类</label><span class="caret"></span>
+                    <div class="dropdown-content" id="tab4"></div>
+                </td>
+                <td width="18%" class="dropdown">
+                    <label>歌曲推荐</label><span class="caret"></span>
+                    <div class="dropdown-content" id="tab5"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <iframe frameborder="0" scrolling="yes" src="indexIframe.html" id="centerIframe"></iframe>
+
+    <iframe id="musicIframe" scrolling="no" frameborder="0"></iframe>
+
+    <div id="aud">
+        <div onclick="hide()" id="div" style="line-height: 490px;">
+            <img src="image/right.png" style="width: 25px;">
+        </div>
+        <iframe src="radioIframe.html" id="audioControl" scrolling="auto" frameborder="0" style="width: 96%;height: 100%"></iframe>
+    </div>
+
+    <footer>
+        <hr/>
+        <div id="foot">
+            <label>关于我们</label>
+            <label>意见反馈</label>
+            <label>帮助中心</label>
+            <label>合作意向</label>
+        </div>
+    </footer>
+
+
+    <!--弹窗登陆和注册窗口-->
+    <div class="sign-up-form" id="dialog">
+        <img src="image/icon.png">
+        <label onclick="hideDialog()">×</label>
+        <h1 style="color: #0b86de;font-weight: 800">用户登陆</h1>
+        <form id="myform" action="javascript:void(0)">
+            <input type="text" class="input-box" placeholder="请输入账户" name="name">
+            <input type="password" class="input-box" placeholder="请输入密码" name="password">
+            <button class="signup-btn" onclick="login()">登&nbsp;&nbsp;陆</button>
+        </form>
+
+        <div class="modal_content" id="loginMessage" style="margin-bottom: -18%;">
+            <div>
+                <input id="loginPhone" type="text" autocomplete="off" placeholder="请输入手机号码"/>
+            </div>
+            <div>
+                <div class="code1">
+                    <input id="code" type="text" autocomplete="off" placeholder="短信验证码"/>
+                    <input id="btnSendCode" type="button" class="btn btn-default" value="获取验证码" onClick="sendMessage2()" />
+                </div>
+            </div>
+            <div class="next">
+                <button onclick="smsLoginJudge()">确定</button>
+            </div>
+        </div>
+        <p style="margin-top: 1%"><a id="changeSms" style="color: black;" onclick="changeSms()">使用短信验证码登陆</a></p>
+        <a onclick="changeTemp(this)" style="color: #0b86de;font-weight: 700;font-size: 15px;">注册用户</a>
+    </div>
+
+
+    <div class="sign-up-form" id="dialog2">
+        <img src="image/icon.png">
+        <label onclick="hideDialog()">×</label>
+        <h1 style="color: #0b86de;font-weight: 800">用户注册</h1>
+        <form id="myform2" action="javascript:void(0)">
+            <input type="text" class="input-box" placeholder="请输入账户,将用于登陆" name="name" value="qwe">
+            <input type="text" class="input-box" placeholder="取一个用户名吧" name="username"  value="qwe">
+            <input type="password" class="input-box" placeholder="请输入密码" name="password"    value="123">
+            <input type="password" class="input-box" placeholder="请再次输入密码"  value="123">
+            <button class="signup-btn" onclick="register()">下一步</button>
+        </form>
+
+        <div class="modal_content" id="message">
+            <div>
+                <input id="phone1" type="text" autocomplete="off" placeholder="请输入手机号码"/>
+            </div>
+            <div>
+                <div class="code1">
+                    <input id="code1" type="text" autocomplete="off" placeholder="短信验证码"/>
+                    <input id="btnSendCode1" type="button" class="btn btn-default" value="获取验证码" onClick="sendMessage()" />
+                </div>
+            </div>
+            <div class="next">
+                <button onclick="Previous()">上一步</button>
+                <button onclick="binding()">确定</button>
+            </div>
+        </div>
+
+        <a onclick="changeTemp(this)" style="color: #0b86de;font-weight: 700;font-size: 15px">直接登陆</a>
+    </div>
+
+
+
+    <!-------------------------------------提示框------------------------------------->
+
+<!--    搜索框未空提示消息信息-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s1">
+        <div class="sy-content">请输入搜索信息哦!</div>
+    </div>
+
+<!--    登陆信息不完整提示消息信息-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s2">
+        <div class="sy-content">请输入完整登陆信息!</div>
+    </div>
+
+<!--    封号提示-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="sealOff">
+        <div class="sy-content">此账户已被封号!</div>
+    </div>
+
+<!--    用户名或密码错误-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s3">
+        <div class="sy-content">用户名或密码错误!</div>
+    </div>
+
+<!--    存在相同账户-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s4">
+        <div class="sy-content">存在相同账户!</div>
+    </div>
+
+<!--    请输入完整注册信息-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s5">
+        <div class="sy-content">请输入完整注册信息!</div>
+    </div>
+
+<!--    两次输入的密码不同!-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s6">
+        <div class="sy-content">两次输入的密码不同!</div>
+    </div>
+
+<!--    手机号注册过账户-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="hasPhone">
+        <div class="sy-content">此手机号已注册!</div>
+    </div>
+
+<!--    注册成功-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s7">
+        <div class="sy-content">注册成功!</div>
+    </div>
+
+<!--    注册失败-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s8">
+        <div class="sy-content">注册失败!请稍后再重试!</div>
+    </div>
+
+<!--    退出弹窗-->
+    <div class="sy-alert animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="confirm" sy-mask="true" id="takeoff"
+                style="height: 23%">
+        <div class="sy-title">温馨提示</div>
+        <div class="sy-content" style="font-size: 18px">确认退出吗？</div>
+        <div class="sy-btn" style="font-weight: 500">
+            <button onClick="takeOff()">确定</button>
+            <button onClick="syalert.syhide('takeoff')">取消</button>
+        </div>
+    </div>
+
+<!--    输入有效的手机号码-->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="phone">
+        <div class="sy-content">请输入有效号码!</div>
+    </div>
+
+<!--    信息提示-->
+    <div class="tips"></div>
+
+</body>
+<script>
+    $(function()
+    {
+        $("#message").css("display","none");
+        $("#loginMessage").css("display","none");
+
+        var url=basePath+"SakuraMusic/selectUserSession";
+        $.post(url,function (data)
+        {
+            if(data!=null && data!="")
+            {
+                if(data.type==0)
+                {
+                    $("#tempLabel").text("管理中心");
+                }
+                else
+                {
+                    $("#tempLabel").text("会员中心");
+                }
+            }
+        });
+
+
+        $("#tempLabel").click(function ()
+        {
+            var url=basePath+"SakuraMusic/selectUserSession";
+            $.post(url,function (data)
+            {
+                if(data!=null && data!="")
+                {
+                    var type=data.type;
+                    if(type==0)
+                    {
+                        //打开管理中心
+                        window.open("manage.html");
+                    }
+                    else
+                    {
+                        //打开新窗口----会员中心
+                        window.open("userCenter.html?id="+data.id);
+                    }
+                }
+            });
+        });
+
+
+        $(".dropdown-content").on("mouseover","p",function ()
+        {
+            $(this).css("background-color","rgba(255,199,241,0.2)")
+        });
+
+        $(".dropdown-content").on("mouseout","p",function ()
+        {
+            $(this).css("background-color","whitesmoke")
+        });
+        $("input[name='music']").keypress(function (e)
+        {
+            if(e.which==13)
+            {
+                var searchText=$("input[name='music']").val().trim();
+                if(searchText=="" || searchText==null)
+                {
+                    syalert.syopen("s1");
+                }
+                else
+                {
+                    $("#centerIframe").attr("src","searchIframe.html?name="+searchText);
+                }
+            }
+        });
+
+        $("#div").bind("mouseover",function ()
+        {
+            $("#div").css("background-color","rgba(255,199,241,0.2)")
+        });
+
+
+        $("#div").bind("mouseout",function ()
+        {
+            $("#div").css("background-color","rgba(241,243,244,0.95)")
+        });
+
+
+        getSession();
+        getInter();
+        hide();
+
+        $("#myform2 input:nth-of-type(1)").focus(function ()
+        {
+            var inputTab=$("#myform2 input:nth-of-type(1)");
+            if(inputTab.val()=="存在相同账户,请重新设置!")
+            {
+                inputTab.val("");
+                inputTab.css("color","black");
+            }
+        });
+
+        $("#myform2 input:nth-of-type(1)").blur(function ()
+        {
+            var val= $("#myform2 input:nth-of-type(1)").val().trim();
+            var url=basePath+"SakuraMusic/selectName/"+val;
+            $.post(url,function (da)
+            {
+                if(da!=null && da!="" && da > 0)
+                {
+                    //存在相同用户名
+                    $("#myform2 input:nth-of-type(1)").css("color","red");
+                    $("#myform2 input:nth-of-type(1)").val("存在相同账户,请重新设置!");
+                }
+            })
+        });
+    });
+
+
+    //播放器弹窗
+    function hide()
+    {
+        $("#aud").stop().animate({right:"-770px"},500,function ()
+        {
+            $("#div img").attr("src","image/left.png");
+            $("#div").click(function ()
+            {
+                show();
+            })
+        });
+    }
+
+
+    function show()
+    {
+        $("#aud").stop().animate({right:"0px"},500,function ()
+        {
+            $("#div img").attr("src","image/right.png");
+            $("#div").click(function ()
+            {
+                hide();
+            })
+        });
+    }
+
+
+
+
+</script>
+</html>

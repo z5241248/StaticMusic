@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery/jquery-3.3.1.js" type="application/javascript"></script>
+    <link href="css/APlayer.min.css" rel="stylesheet">
+    <script src="js/APlayer.min.js" type="application/javascript"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/redioIframe.css" rel="stylesheet">
+    <script src="js/bootstrap.min.js" type="application/javascript"></script>
+    <script src="js/utils.js" type="application/javascript"></script>
+
+    <link href="css/syalert.min.css" rel="stylesheet">
+    <script src="js/syalert.min.js"></script>
+
+    <script type="text/javascript" charset="utf-8" src="edit-custom/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="edit-custom/ueditor.all.js"> </script>
+    <script type="text/javascript" charset="utf-8" src="edit-custom/lang/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript">
+        var ue = UE.getEditor('editor');
+    </script>
+</head>
+<body>
+    <div id="con">
+        <div id="player" class="aplayer"></div>
+        <div id="control" style="display: none">
+            <p><img src="image/notCollection.png"><label onclick="thumbUp(this)">收藏</label><label></label></p>
+            <p><img src="image/comment.png">
+                <label onclick="comment(this)">评论</label><label></label>
+            </p>
+            <div id="collapseOne" class="collapse">
+                <div id="pan">
+                    <div id="form">
+                        <script id="editor" type="text/plain" style="width:100%;height:65%;"></script>
+                        <p><button onclick="sub(this)">提交评论</button></p>
+                    </div>
+                    <p id="showComment" style="margin-top: 3%">
+                        <strong>评论</strong>
+                        <table id="mytable"></table>
+                        <label style="display: none" id="nextPageLabel"></label>
+                        <div id="allCom">
+                            <hr/>
+                            <label>已加载全部评论</label>
+                        </div>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--------------------  提示框  -------------------->
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s9"
+                style="position: fixed;right: 100%">
+        <div class="sy-content">已超出最大字符数!</div>
+    </div>
+
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s10"
+                style="position: fixed;right: 100%">
+        <div class="sy-content">评论成功!</div>
+    </div>
+
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s11"
+                style="position: fixed;right: 100%">
+        <div class="sy-content">系统出错,请稍后再试!</div>
+    </div>
+
+    <div class="sy-alert sy-alert-tips animated" sy-enter="zoomIn" sy-leave="zoomOut" sy-type="tips" sy-mask="false" id="s12"
+                style="position: fixed;right: 100%">
+        <div class="sy-content">请登录账户!</div>
+    </div>
+
+</body>
+<script>
+    //提交评论
+    function sub(e)
+    {
+        //得到歌曲名,歌手名
+        var playingName=$(e).parent().parent().parent().parent().parent().parent().find("#player").text().split("\n");
+        var musicName=playingName[6].trim();
+        var singerName=playingName[7].trim().split("-")[1].trim();
+
+        var arr = [];
+        arr.push(UE.getEditor('editor').hasContents());
+        var bool=arr.join("\n");
+        if(bool=="false")
+        {
+            return false;
+        }
+        else
+        {
+            //编辑器中的内容text
+            var arr2 = [];
+            arr2.push(UE.getEditor('editor').getContentTxt());
+            var text=arr2.join("\n");
+
+            //得到字符数
+            if(text.length>100)
+            {
+                // alert("已超出最大输入字符!");
+                syalert.syopen("s9");
+                return false;
+            }
+            else
+            {
+                var url=basePath+"SakuraMusic/selectUserSession";
+                $.post(url,function (user)
+                {
+                    if(user!=null && user!="")
+                    {
+                        var commnetUrl=basePath+"SakuraMusic/backCommentInfo";
+                        var ser="username="+user.username+"&info="+text+"&musicName="+musicName+"&singerName="+singerName;
+                        $.post(commnetUrl,ser,function (da)
+                        {
+                            if(user != null && user != "" && da > 0)
+                            {
+                                // alert("评论成功!");
+                                syalert.syopen("s10");
+                                UE.getEditor('editor').setContent("");
+
+                                //刷新table
+                                var table=$("#mytable");
+                                table.empty();
+                                refreshTable(musicName,singerName,1);
+
+                                //刷新评论数额
+                                changeCommentCount(musicName,singerName);
+                            }
+                            else
+                            {
+                                // alert("系统出错,请稍后再试!");
+                                syalert.syopen("s11");
+                            }
+                        });
+                    }
+                    else
+                    {
+                        // alert("请登录账户!");
+                        syalert.syopen("s12");
+                    }
+                });
+            }
+        }
+    }
+
+
+    function change(name,id)
+    {
+        //input重置为1
+        $("#nextPageLabel").val(1);
+        //评论框隐藏
+        $("#collapseOne").hide(0);
+
+        //起初得到音乐名称name,歌手id
+        var searchPlay=basePath+"SakuraMusic/searchPlay?name="+name+"&singer="+id+"";
+        $.ajax
+        ({
+            type:"POST",
+            url:searchPlay,
+            async:false,
+            success:function (playingMusic)
+            {
+                $("#control p:nth-of-type(1) label:nth-of-type(2)").text(playingMusic.likecount);
+                $("#control p:nth-of-type(2) label:nth-of-type(2)").text(playingMusic.comment);
+            }
+        });
+
+        //显示control
+        $("#control").css("display","block");
+
+        //定义变量
+        var pic;
+        var author;
+        var url;
+        var lrcAddress;
+        var playingMusicId;
+
+        var singerUrl=basePath+"SakuraMusic/selectSingerById/"+id;
+        $.ajax
+        ({
+            type:"POST",
+            url:singerUrl,
+            async:false,
+            success:function (singer)
+            {
+                author = singer.name;
+                pic = singer.image;
+            }
+        });
+
+
+        //查询音乐
+        var musicUrl=basePath+"SakuraMusic/selectMusicByNameAndSinger?name="+name+"&singer="+id;
+        $.ajax
+        ({
+            type:"POST",
+            url:musicUrl,
+            async:false,
+            success:function (music)
+            {
+                url=music[0].musicaddress;
+                lrcAddress=music[0].lrcaddress;
+                playingMusicId=music[0].id;
+            }
+        });
+
+
+        //加载评论数额
+        changeCommentCount(name,author);
+
+        //得到session内容
+        var userUrl=basePath+"SakuraMusic/selectUserSession";
+        $.post(userUrl,function (user)
+        {
+            if (user == null || user == "")
+            {
+//                alert("请登陆账户!");
+            }
+            else
+            {
+                //当用户收藏歌曲中包含正在播放的歌曲时
+                var likeMusic=user.likemusic;
+                if(likeMusic.length == 1)
+                {
+                    if(likeMusic==playingMusicId)
+                    {
+                        $("#control p:nth-of-type(1) img").attr("src","image/Collection.png");
+                        $("#control p:nth-of-type(1) label:nth-of-type(1)").text("已收藏");
+
+                    }
+                    else
+                    {
+                        $("#control p:nth-of-type(1) img").attr("src","image/notCollection.png");
+                        $("#control p:nth-of-type(1) label:nth-of-type(1)").text("收藏");
+                    }
+                }
+                else
+                {
+                    var str=likeMusic.split(";");
+                    for(var i=0;i<str.length;i++)
+                    {
+                        if(str[i]==playingMusicId)
+                        {
+                            $("#control p:nth-of-type(1) img").attr("src","image/Collection.png");
+                            $("#control p:nth-of-type(1) label:nth-of-type(1)").text("已收藏");
+                            break;
+                        }
+                        else
+                        {
+                            $("#control p:nth-of-type(1) img").attr("src","image/notCollection.png");
+                            $("#control p:nth-of-type(1) label:nth-of-type(1)").text("收藏");
+                        }
+                    }
+                }
+            }
+        });
+
+
+        var lrcText="[00:00.00]未检索到歌词文件";
+        $.ajax
+        ({
+            async:false,
+            url:lrcAddress,
+            success:function (data)
+            {
+                if(data!="" || data!=null)
+                {
+                    lrcText=data;
+                }
+            }
+        });
+
+        var ap3 = new APlayer
+        ({
+            element: document.getElementById('player'),
+            narrow: false,
+            autoplay: true,
+            showlrc: 1,
+            mutex: true,
+            theme: '#615754',
+            music:
+                {
+                    title: name,
+                    author: author,
+                    url: url,
+                    pic: pic,
+                    lrc: lrcText
+                }
+        });
+        ap3.init();
+    }
+
+
+    //更改评论数额
+    function changeCommentCount(musicName , singerName)
+    {
+        var commentUrl = basePath+"SakuraMusic/commentCount";
+        var ser="musicName="+musicName+"&singerName="+singerName;
+        $.post(commentUrl,ser,function (commentData)
+        {
+            if(commentData!=null && commentData!="")
+            {
+                $("#control p:nth-of-type(2) label:nth-of-type(2)").text(commentData);
+            }
+            else
+            {
+                $("#control p:nth-of-type(2) label:nth-of-type(2)").text("0");
+            }
+        })
+    }
+
+
+
+    //收藏
+    function thumbUp(e)
+    {
+        var url=basePath+"SakuraMusic/selectUserSession";
+        $.post(url,function (data)
+        {
+            if(data!=null && data!="")
+            {
+                //取出当前播放音乐名和歌手
+                var playingName=$(e).parent().parent().parent().find("#player").text().split("\n");
+                var musicName=playingName[6].trim();
+                var singerName=playingName[7].trim().split("-")[1].trim();
+
+                //得到歌手id
+                var selectSinger=basePath+"SakuraMusic/selectByName2/"+singerName;
+                var singerId;
+                $.ajax
+                ({
+                    type:"POST",
+                    url:selectSinger,
+                    async:false,
+                    success:function (singer)
+                    {
+                        singerId=singer.id;
+                    }
+                });
+
+                //得到歌曲id
+                var playingUrl=basePath+"SakuraMusic/selectMusicByNameAndSinger";
+                var ser="name="+musicName+"&singer="+singerId;
+                $.post(playingUrl,ser,function (musicData)
+                {
+                    //播放的歌曲id
+                    var musicId=musicData[0].id;
+                    //用户收藏的歌曲内容
+                    var likeMusic=data.likemusic;
+
+                    if($("#control p:nth-of-type(1) label:nth-of-type(1)").text().trim()=="已收藏")
+                    {
+                        //点击取消收藏
+
+                        //查询内容是否位于第一个
+                        var bool=data.likemusic.indexOf(musicId);
+                        if(bool != 0)
+                        {
+                            var temp=";"+musicId;
+                            likeMusic=likeMusic.replace(temp , "");
+                        }
+                        else
+                        {
+                            var temp=musicId+";";
+                            likeMusic=likeMusic.replace(temp , "");
+                        }
+
+                        //减少点赞数
+                        var countUrl=basePath+"SakuraMusic/reduceCount/"+musicName+"/"+singerId;
+                        $.post(countUrl,ser,function (count)
+                        {
+                            //成功
+                            if(count!="" && count!=null && count > 0)
+                            {
+                                //收藏数字减一
+                                var temp=$("#control p:nth-of-type(1) label:nth-of-type(2)").text();
+                                temp=parseInt(temp)-1;
+                                $("#control p:nth-of-type(1) label:nth-of-type(2)").text(temp);
+
+                                //更新用户的likemusic
+                                var likeCountUrl=basePath+"SakuraMusic/reduceLikeCount";
+                                var ser="likemusic="+likeMusic+"&name="+data.name;
+                                $.post(likeCountUrl,ser,function (backCount)
+                                {
+                                    if(backCount!="" && backCount!=null && backCount > 0)
+                                    {
+                                        $("#control p:nth-of-type(1) img").attr("src","image/notCollection.png");
+                                        $("#control p:nth-of-type(1) label:nth-of-type(1)").text("收藏");
+                                    }
+                                })
+                            }
+                        })
+                    }
+                    else
+                    {
+                        //点击收藏
+                        var countUrl=basePath+"SakuraMusic/updateLikeCount";
+                        var ser="likemusic="+musicId+"&name="+data.name;
+                        $.post(countUrl,ser,function (backCount)
+                        {
+                            if(backCount!="" && backCount!=null && backCount > 0)
+                            {
+                                //更新歌曲点击量
+                                var likeUrl=basePath+"SakuraMusic/updateCount/"+musicName+"/"+singerId;
+                                $.post(likeUrl,function (count)
+                                {
+                                    if(count!="" && count!=null && count > 0)
+                                    {
+                                        var temp=$("#control p:nth-of-type(1) label:nth-of-type(2)").text();
+                                        temp=parseInt(temp)+1;
+                                        $("#control p:nth-of-type(1) label:nth-of-type(2)").text(temp);
+
+                                        $("#control p:nth-of-type(1) img").attr("src","image/Collection.png");
+                                        $("#control p:nth-of-type(1) label:nth-of-type(1)").text("已收藏");
+                                    }
+                                });
+                            }
+                        })
+                    }
+                });
+            }
+            else
+            {
+                // alert("请登陆账户!");
+                syalert.syopen("s12");
+            }
+        })
+    }
+
+
+    //评论
+    function comment(e)
+    {
+        var url=basePath+"SakuraMusic/selectUserSession";
+        $.post(url,function (user)
+        {
+            if (user != null && user != "")
+            {
+                //取出当前播放音乐名和歌手
+                var playingName=$(e).parent().parent().parent().find("#player").text().split("\n");
+                var musicName=playingName[6].trim();
+                var singerName=playingName[7].trim().split("-")[1].trim();
+
+                //显示评论区
+                $("#collapseOne").toggle(300);
+                //刷新table
+                var table=$("#mytable");
+                table.empty();
+                //刷新table加载内容
+                refreshTable(musicName,singerName,1);
+            }
+            else
+            {
+                // alert("请登录账户!");
+                syalert.syopen("s12");
+            }
+        })
+    }
+
+
+    //刷新table数据
+    function refreshTable(musicName,singerName,page)
+    {
+        var url=basePath+"SakuraMusic/backInfo";
+        var ser="musicName="+musicName+"&singerName="+singerName+"&page="+page;
+        $.post(url,ser,function (data)
+        {
+            var table=$("#mytable");
+            $.each(data,function (i,n)
+            {
+                var str=n.split("\n");
+                var username=str[1].trim();
+                var date=str[2].trim();
+                var info=str[3].trim();
+
+                var tab=$("<table style='width: 720px;height: 100px;border: 0.1px dotted lightgray;border-bottom: 0.5px solid black;margin-top: 5px'></table>");
+
+                var tr1=$("<tr style='width: 100%;height: 20px;border-bottom: 0.1px dotted lightgray'></tr>");//行
+                var td1="<td style='position: absolute;left: 20px;'>"+username+"</td>";
+                td1+="<td style='position: absolute;right: 20px'>"+date+"</td>";
+                tr1.append(td1);
+
+                var tr2=$("<tr></tr>");
+                var td2="<td style='padding-left: 20px;padding-right: 20px'>"+info+"</td>";
+                tr2.append(td2);
+
+                tab.append(tr1);
+                tab.append(tr2);
+                table.append(tab);
+            })
+        });
+    }
+
+
+    $(window).scroll(function ()
+    {
+        var scrollTop = $(this).scrollTop();        //滚动条距离顶部的高度
+        var clientHeight = $(this).height();        //当前可视的页面高度
+        var scrollHeight = $(document).height();    //当前页面的总高度
+        if(scrollTop + clientHeight >= scrollHeight-10)
+        {
+            //滚动条到达底部差15px时
+            var nextPageLabel=parseInt($("#nextPageLabel").val())+1;
+            $("#nextPageLabel").val(nextPageLabel);
+
+            var playingName=$("#player").text().split("\n");
+            var musicName=playingName[6].trim();
+            var singerName=playingName[7].trim().split("-")[1].trim();
+
+            refreshTable(musicName,singerName,nextPageLabel);
+        }
+    })
+</script>
+</html>

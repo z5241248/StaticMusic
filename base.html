@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery/jquery-3.3.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="edit-bootstrap-select/bootstrap-select.js"></script>
+    <script src="js/utils.js" type="application/javascript"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="edit-bootstrap-select/bootstrap-select.css">
+</head>
+<style>
+    #lab{width: 100%}
+</style>
+<body>
+    <form class="form-inline">
+        <div class="form-group">
+            <label class="col-md-1 control-label" for="lunch" id="lab">请选择 : </label>
+        </div>
+        <div class="form-group">
+            <select id="lunch" class="selectpicker" data-live-search="true" title="请选择">
+                <option>test</option>
+            </select>
+        </div>
+    </form>
+</body>
+<script>
+    $(function ()
+    {
+        //没有信息返回数据
+        $(".selectpicker").selectpicker({
+            noneResultsText : '未搜索到关于 {0} 的信息'
+        });
+
+        //查询4位歌手
+        getOption();
+
+        //根据input内容匹配内容
+        $("input[class='form-control']").on('input',function ()
+        {
+            selectChange();
+        });
+    });
+
+    function getOption()
+    {
+        var url=basePath+"SakuraMusic/selectRandSinger";
+        $.post(url,function (data)
+        {
+            var sel=$("#lunch");
+            sel.empty();
+            $.each(data,function (i,n)
+            {
+                $("#lunch").append("<option value='"+n.id+"'>"+n.name+"</option>");
+            });
+            //使用refresh方法更新UI以匹配新状态。
+            $("#lunch").selectpicker('refresh');
+            //render方法强制重新渲染引导程序 - 选择ui。
+            $("#lunch").selectpicker('render');
+        })
+    }
+    
+    
+    function selectChange()
+    {
+        var val= $("input[class='form-control']").val();
+        var url=basePath+"SakuraMusic/selectSingerByName/"+val;
+        $.post(url,function (data)
+        {
+            var sel=$("#lunch");
+            sel.empty();
+            $.each(data,function (i,n)
+            {
+                $("#lunch").append("<option value='"+n.id+"'>"+n.name+"</option>");
+            });
+            //使用refresh方法更新UI以匹配新状态。
+            $("#lunch").selectpicker('refresh');
+            //render方法强制重新渲染引导程序 - 选择ui。
+            $("#lunch").selectpicker('render');
+        })
+    }
+</script>
+</html>
+
+
+
+
+
+
+
+
